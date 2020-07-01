@@ -19,7 +19,7 @@ class UserManager(models.Manager):
             errors['password'] = "Password field must be 8 or more characters"
         return errors
     def register(self, form):
-        hashed = bcrypt.hashpw(form['password'], bcrypt.gensalt()).decode()
+        hashed = bcrypt.hashpw(form['password'].encode(), bcrypt.gensalt()).decode()
         return self.create(
             first_name=form['first_name'],
             last_name=form['last_name'],
