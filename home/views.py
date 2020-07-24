@@ -1,6 +1,7 @@
 from django.shortcuts import render, redirect, HttpResponse, reverse
 from django.utils import timezone
 from django.contrib import messages
+from .forms import RegisterForm
 import pytz
 from .models import User
 # Create your views here.
@@ -11,7 +12,7 @@ def timezone(request):
 
 def index(request):
     
-    return render(request, 'index.html')
+    return render(request, 'index.html', { 'form': RegisterForm()})
 
 def login(request):
     if request.method == 'POST':
@@ -31,14 +32,11 @@ def logout(request):
 
 def create(request):
     if request.method == 'POST':
-        errors = User.objects.validate(request.POST)
-        if errors:
-            for e in errors.values():
-                messages.error(request, e)
-            return redirect('home:index')
-        else:
-            user = User.objects.register(request.POST)
+        bound_form = RegisterForm(request.POST)
+        if bound_form.is_valid():
+            # create user?
+            user = bound_form.save()
             request.session['user_id'] = user.id
-            return redirect('posts:index')
-    return redirect('/')
-
+            return redirect('/posts')
+        else:
+            return render(request, 'index.html', { 'form': bound_form })
